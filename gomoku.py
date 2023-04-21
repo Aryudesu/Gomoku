@@ -7,7 +7,7 @@ class Gomoku:
     BLACK = 1
     WHITE = 2
     EMPTY = 0
-    FIELD_SIZE = 10
+    FIELD_SIZE = 19
 
     def i_w(self, value):
         s2 = self.FIELD_SIZE + 2
@@ -114,23 +114,20 @@ class Gomoku:
     def main(self):
         toukei = dict()
         win_num = [0] * 3
-        for i in range(100000):
+        for i in range(3000):
             self.init_board()
             turn = self.BLACK
             ju = None
             while True:
-                # self.print_board()
                 y, x = self.cpu_turn()
                 self.put(y, x, turn)
                 if self.is_end():
                     ju = self.EMPTY
                     key = "引分"
                     toukei[key] = 1 + toukei.get(key, 0)
-                    # self.print_end_board(y, x)
                     break
                 ju = self.judge(y, x, turn, toukei)
                 if ju != self.EMPTY:
-                    # self.print_end_board(y, x)
                     break
                 turn = self.change_turn(turn)
             if ju == 0:
@@ -139,12 +136,6 @@ class Gomoku:
                 win_num[1] += 1
             else:
                 win_num[2] += 1
-            # if ju == 0:
-            #     print("Draw")
-            # elif ju == self.BLACK:
-            #     print("BLACK")
-            # else:
-            #     print("WHITE")
         print(toukei)
         print(win_num)
 
