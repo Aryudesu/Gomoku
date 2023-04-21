@@ -41,7 +41,7 @@ class Gomoku:
         return not ((self.BLACK | self.WHITE) & pos)
 
     def deback_board(self, b):
-        """描画"""
+        """デバッグ用描画"""
         os.system("cls")
         tmp = self.XY2Bit(1, 1)
         for _ in range(self.SIZE):
@@ -145,9 +145,9 @@ class Gomoku:
         ar = [self.horizon, self.right_down, self.right_up]
         for a in ar:
             tmp = a(pos, f)
-            if (result & (1 << 2)) and (tmp & (1 << 2)):
+            if (result & (1 << 2)) and (tmp & (1 << 2)) and turn:
                 return -1
-            if (result & (1 << 3)) and (tmp & (1 << 3)):
+            if (result & (1 << 3)) and (tmp & (1 << 3)) and turn:
                 return -1
             result |= tmp
         if result & (1 << 5):
@@ -156,14 +156,36 @@ class Gomoku:
             return 1 if turn else -1
         return 0
 
-    def cpu_turn(self):
-        return random.sample(self.can_put, 1)[0]
+    def cause(self, pos, turn):
+        """勝敗要因"""
+        f = self.BLACK if turn else self.WHITE
+        result = self.vertical(pos, f)
+        ar = [self.horizon, self.right_down, self.right_up]
+        for a in ar:
+            tmp = a(pos, f)
+            if (result & (1 << 2)) and (tmp & (1 << 2)) and turn:
+                return "三三"
+            if (result & (1 << 3)) and (tmp & (1 << 3)) and turn:
+                return "四四"
+            result |= tmp
+        if result & (1 << 5):
+            return "長連"
+        if (result & (1 << 4)):
+            return "五"
+        return "引分"
 
-    def main(self):
+    def cpu_turn(self):
+        """ランダムにマスを選ぶ"""
+        tmp = random.sample(self.can_put, 1)[0]
+        self.can_put.remove(tmp)
+        return tmp
+
+    def main(self, prt=False):
         """メインループ"""
         turn = True
         while True:
-            # self.print_board()
+            if prt:
+                self.print_board()
             pos = self.cpu_turn()
             self.put_stone(pos, turn)
             ju = self.judge(pos, turn)
@@ -173,7 +195,15 @@ class Gomoku:
                 ju = 0
                 break
             turn = self.change_turn(turn)
-        # self.print_board(pos)
+        if prt:
+            self.print_board(pos)
+            if ju == 0:
+                print("Draw")
+            elif ju == 1:
+                print("Black Win")
+            else:
+                print("White Win")
+            print(self.cause(pos, turn))
         return ju
 
     def try_loop(self, n):
@@ -186,6 +216,5 @@ class Gomoku:
 
 
 gm = Gomoku()
-gm.try_loop(10000)
-# gm.main()
-# gm.deback_board(gm.l_mask)
+# gm.try_loop(10000)
+gm.main(True)
